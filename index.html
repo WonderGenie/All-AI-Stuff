@@ -24,10 +24,65 @@
       padding: 0.5rem 1.5rem;
       cursor: pointer;
     }
+    #history {
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      color: #333;
+    }
+    table {
+      margin-top: 1.5rem;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+      font-size: 1rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.6rem 1.2rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    th {
+      background: #1a1a2e;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <button onclick="document.getElementById('greeting').style.display='block'; document.body.style.backgroundColor='blue'">Click Me</button>
+  <button onclick="logInteraction()">Show Profile</button>
   <h1 id="greeting" style="display:none">Hello, World!</h1>
+  <table id="profile" style="display:none">
+    <thead>
+      <tr><th>Field</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Name</td><td>Vijay Parpyani</td></tr>
+      <tr><td>Email</td><td>Vij_parpyani@yahoo.co.in</td></tr>
+      <tr><td>GitHub</td><td>WonderGenie</td></tr>
+      <tr><td>Repository</td><td>All-AI-Stuff</td></tr>
+    </tbody>
+  </table>
+  <div id="history"></div>
+
+  <script>
+    function logInteraction() {
+      document.getElementById('greeting').style.display = 'block';
+      document.getElementById('profile').style.display = 'table';
+      document.body.style.backgroundColor = 'blue';
+
+      const history = JSON.parse(localStorage.getItem('history') || '[]');
+      history.push(new Date().toLocaleString());
+      localStorage.setItem('history', JSON.stringify(history));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const history = JSON.parse(localStorage.getItem('history') || '[]');
+      const el = document.getElementById('history');
+      el.innerHTML = '<strong>Click history:</strong><br>' +
+        history.map((t, i) => `${i + 1}. ${t}`).join('<br>');
+    }
+
+    renderHistory();
+  </script>
 </body>
 </html>
