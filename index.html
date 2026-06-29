@@ -1,144 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello World</title>
-  <style>
-    body {
-      display: flex;
-      height: 100vh;
-      margin: 0;
-      background-color: #f0f4f8;
-      font-family: Arial, sans-serif;
-    }
-    nav {
-      width: 220px;
-      background: #1a1a2e;
-      color: white;
-      padding: 1rem 0;
-      flex-shrink: 0;
-    }
-    .nav-item {
-      padding: 0.8rem 1.2rem;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .nav-item:hover {
-      background: #29294d;
-    }
-    .nav-dropdown {
-      display: none;
-      flex-direction: column;
-    }
-    .nav-dropdown a {
-      color: #ccc;
-      text-decoration: none;
-      padding: 0.5rem 2rem;
-    }
-    .nav-dropdown a:hover {
-      color: white;
-    }
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    h1 {
-      font-size: 3rem;
-      color: #333;
-    }
-    button {
-      font-size: 1.5rem;
-      padding: 0.5rem 1.5rem;
-      cursor: pointer;
-    }
-    #history {
-      margin-top: 1.5rem;
-      font-size: 1rem;
-      color: #333;
-    }
-    table {
-      margin-top: 1.5rem;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-      font-size: 1rem;
-    }
-    th, td {
-      text-align: left;
-      padding: 0.6rem 1.2rem;
-      border-bottom: 1px solid #e0e0e0;
-    }
-    th {
-      background: #1a1a2e;
-      color: white;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Identity Management Console</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    display: flex;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f4f8;
+    font-family: Arial, sans-serif;
+  }
+
+  /* Login screen */
+  #login-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  #login-screen input {
+    font-size: 1rem;
+    padding: 0.5rem;
+    width: 220px;
+  }
+  #login-error {
+    color: #c0392b;
+    min-height: 1.2rem;
+  }
+
+  /* App shell */
+  #app { display: none; flex: 1; }
+  nav {
+    width: 220px;
+    background: #1a1a2e;
+    color: white;
+    padding: 1rem 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .nav-item { padding: 0.8rem 1.2rem; cursor: pointer; font-weight: bold; }
+  .nav-item:hover { background: #29294d; }
+  .nav-dropdown { display: none; flex-direction: column; }
+  .nav-dropdown a { color: #ccc; text-decoration: none; padding: 0.5rem 2rem; cursor: pointer; }
+  .nav-dropdown a:hover { color: white; }
+  #logout { margin-top: auto; padding: 0.8rem 1.2rem; cursor: pointer; color: #ff8080; }
+
+  main { flex: 1; padding: 2rem; overflow: auto; }
+  h1 { margin-top: 0; }
+
+  button {
+    font-size: 1rem;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+  }
+  table {
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    font-size: 0.95rem;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  th, td { text-align: left; padding: 0.6rem 1rem; border-bottom: 1px solid #e0e0e0; }
+  th { background: #1a1a2e; color: white; }
+  form.inline { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  form.inline input, form.inline select { padding: 0.4rem; font-size: 0.95rem; }
+  .badge { padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.8rem; color: white; }
+  .badge.active { background: #2ecc71; }
+  .badge.disabled { background: #95a5a6; }
+</style>
 </head>
 <body>
+
+<div id="login-screen">
+  <h1>Identity Management Console</h1>
+  <input id="login-user" placeholder="Username" value="admin">
+  <input id="login-pass" type="password" placeholder="Password">
+  <button onclick="login()">Log In</button>
+  <div id="login-error"></div>
+  <small>Demo credentials: admin / admin</small>
+</div>
+
+<div id="app">
   <nav>
-    <div class="nav-item" onclick="toggleDropdown('identity')">Identity</div>
-    <div class="nav-dropdown" id="identity">
-      <a href="#">Identities</a>
-      <a href="#">Providers</a>
+    <div class="nav-item" onclick="toggleDropdown('nav-identity')">Identity</div>
+    <div class="nav-dropdown" id="nav-identity">
+      <a onclick="showView('providers')">Identity Providers</a>
     </div>
-    <div class="nav-item" onclick="toggleDropdown('user')">User</div>
-    <div class="nav-dropdown" id="user">
-      <a href="#">Profile</a>
-      <a href="#">Roles</a>
+    <div class="nav-item" onclick="toggleDropdown('nav-user')">User</div>
+    <div class="nav-dropdown" id="nav-user">
+      <a onclick="showView('users')">Users</a>
     </div>
-    <div class="nav-item" onclick="toggleDropdown('security')">Security</div>
-    <div class="nav-dropdown" id="security">
-      <a href="#">Permissions</a>
-      <a href="#">Audit Log</a>
+    <div class="nav-item" onclick="toggleDropdown('nav-security')">Security</div>
+    <div class="nav-dropdown" id="nav-security">
+      <a onclick="showView('roles')">Roles &amp; Permissions</a>
+      <a onclick="showView('audit')">Audit Log</a>
     </div>
+    <div id="logout" onclick="logout()">Log Out</div>
   </nav>
 
-  <main>
-    <button onclick="logInteraction()">Show Profile</button>
-    <h1 id="greeting" style="display:none">Hello, World!</h1>
-    <table id="profile" style="display:none">
-      <thead>
-        <tr><th>Field</th><th>Value</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Name</td><td>Vijay Parpyani</td></tr>
-        <tr><td>Email</td><td>Vij_parpyani@yahoo.co.in</td></tr>
-        <tr><td>GitHub</td><td>WonderGenie</td></tr>
-        <tr><td>Repository</td><td>All-AI-Stuff</td></tr>
-      </tbody>
+  <main id="main"></main>
+</div>
+
+<script>
+const SESSION_KEY = 'idm_session';
+
+function seed(key, value) {
+  if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(value));
+}
+
+seed('idm_users', [
+  { name: 'Vijay Parpyani', email: 'Vij_parpyani@yahoo.co.in', role: 'Admin', status: 'active' },
+  { name: 'Jane Doe', email: 'jane.doe@example.com', role: 'Viewer', status: 'active' }
+]);
+
+seed('idm_providers', [
+  { name: 'Okta', type: 'SAML', status: 'active' },
+  { name: 'Google Workspace', type: 'OAuth 2.0', status: 'active' },
+  { name: 'Azure AD', type: 'OIDC', status: 'disabled' }
+]);
+
+seed('idm_roles', [
+  { name: 'Admin', permissions: 'Full access' },
+  { name: 'Editor', permissions: 'Manage users, view security' },
+  { name: 'Viewer', permissions: 'Read-only' }
+]);
+
+seed('idm_audit', []);
+
+function load(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
+function save(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+
+function logAudit(action) {
+  const session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+  const entries = load('idm_audit');
+  entries.unshift({ time: new Date().toLocaleString(), actor: session ? session.user : 'unknown', action });
+  save('idm_audit', entries);
+}
+
+function login() {
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (user === 'admin' && pass === 'admin') {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ user }));
+    document.getElementById('login-error').textContent = '';
+    enterApp();
+  } else {
+    document.getElementById('login-error').textContent = 'Invalid username or password.';
+  }
+}
+
+function logout() {
+  logAudit('Logged out');
+  localStorage.removeItem(SESSION_KEY);
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+function enterApp() {
+  logAudit('Logged in');
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  showView('users');
+}
+
+function toggleDropdown(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
+}
+
+function showView(view) {
+  const main = document.getElementById('main');
+  if (view === 'users') main.innerHTML = renderUsers();
+  if (view === 'providers') main.innerHTML = renderProviders();
+  if (view === 'roles') main.innerHTML = renderRoles();
+  if (view === 'audit') main.innerHTML = renderAudit();
+}
+
+function renderUsers() {
+  const users = load('idm_users');
+  const rows = users.map(u => `
+    <tr>
+      <td>${u.name}</td><td>${u.email}</td><td>${u.role}</td>
+      <td><span class="badge ${u.status}">${u.status}</span></td>
+    </tr>`).join('');
+  return `
+    <h1>Users</h1>
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
+      <tbody>${rows}</tbody>
     </table>
-    <div id="history"></div>
-  </main>
+    <form class="inline" onsubmit="addUser(event)">
+      <input id="new-user-name" placeholder="Name" required>
+      <input id="new-user-email" placeholder="Email" type="email" required>
+      <select id="new-user-role">
+        <option>Admin</option><option>Editor</option><option selected>Viewer</option>
+      </select>
+      <button type="submit">Add User</button>
+    </form>`;
+}
 
-  <script>
-    function toggleDropdown(id) {
-      const el = document.getElementById(id);
-      el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
-    }
+function addUser(e) {
+  e.preventDefault();
+  const name = document.getElementById('new-user-name').value;
+  const email = document.getElementById('new-user-email').value;
+  const role = document.getElementById('new-user-role').value;
+  const users = load('idm_users');
+  users.push({ name, email, role, status: 'active' });
+  save('idm_users', users);
+  logAudit(`Added user ${name}`);
+  showView('users');
+}
 
-    function logInteraction() {
-      document.getElementById('greeting').style.display = 'block';
-      document.getElementById('profile').style.display = 'table';
-      document.body.style.backgroundColor = 'blue';
+function renderProviders() {
+  const providers = load('idm_providers');
+  const rows = providers.map(p => `
+    <tr>
+      <td>${p.name}</td><td>${p.type}</td>
+      <td><span class="badge ${p.status}">${p.status}</span></td>
+    </tr>`).join('');
+  return `
+    <h1>Identity Providers</h1>
+    <table>
+      <thead><tr><th>Provider</th><th>Protocol</th><th>Status</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
 
-      const history = JSON.parse(localStorage.getItem('history') || '[]');
-      history.push(new Date().toLocaleString());
-      localStorage.setItem('history', JSON.stringify(history));
-      renderHistory();
-    }
+function renderRoles() {
+  const roles = load('idm_roles');
+  const rows = roles.map(r => `<tr><td>${r.name}</td><td>${r.permissions}</td></tr>`).join('');
+  return `
+    <h1>Roles &amp; Permissions</h1>
+    <table>
+      <thead><tr><th>Role</th><th>Permissions</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
 
-    function renderHistory() {
-      const history = JSON.parse(localStorage.getItem('history') || '[]');
-      const el = document.getElementById('history');
-      el.innerHTML = '<strong>Click history:</strong><br>' +
-        history.map((t, i) => `${i + 1}. ${t}`).join('<br>');
-    }
+function renderAudit() {
+  const entries = load('idm_audit');
+  const rows = entries.map(a => `<tr><td>${a.time}</td><td>${a.actor}</td><td>${a.action}</td></tr>`).join('');
+  return `
+    <h1>Audit Log</h1>
+    <table>
+      <thead><tr><th>Time</th><th>Actor</th><th>Action</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
 
-    renderHistory();
-  </script>
+if (localStorage.getItem(SESSION_KEY)) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  showView('users');
+}
+</script>
 </body>
 </html>
