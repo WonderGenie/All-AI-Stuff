@@ -7,13 +7,44 @@
   <style>
     body {
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
       height: 100vh;
       margin: 0;
       background-color: #f0f4f8;
       font-family: Arial, sans-serif;
+    }
+    nav {
+      width: 220px;
+      background: #1a1a2e;
+      color: white;
+      padding: 1rem 0;
+      flex-shrink: 0;
+    }
+    .nav-item {
+      padding: 0.8rem 1.2rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .nav-item:hover {
+      background: #29294d;
+    }
+    .nav-dropdown {
+      display: none;
+      flex-direction: column;
+    }
+    .nav-dropdown a {
+      color: #ccc;
+      text-decoration: none;
+      padding: 0.5rem 2rem;
+    }
+    .nav-dropdown a:hover {
+      color: white;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
     h1 {
       font-size: 3rem;
@@ -48,22 +79,47 @@
   </style>
 </head>
 <body>
-  <button onclick="logInteraction()">Show Profile</button>
-  <h1 id="greeting" style="display:none">Hello, World!</h1>
-  <table id="profile" style="display:none">
-    <thead>
-      <tr><th>Field</th><th>Value</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>Name</td><td>Vijay Parpyani</td></tr>
-      <tr><td>Email</td><td>Vij_parpyani@yahoo.co.in</td></tr>
-      <tr><td>GitHub</td><td>WonderGenie</td></tr>
-      <tr><td>Repository</td><td>All-AI-Stuff</td></tr>
-    </tbody>
-  </table>
-  <div id="history"></div>
+  <nav>
+    <div class="nav-item" onclick="toggleDropdown('identity')">Identity</div>
+    <div class="nav-dropdown" id="identity">
+      <a href="#">Identities</a>
+      <a href="#">Providers</a>
+    </div>
+    <div class="nav-item" onclick="toggleDropdown('user')">User</div>
+    <div class="nav-dropdown" id="user">
+      <a href="#">Profile</a>
+      <a href="#">Roles</a>
+    </div>
+    <div class="nav-item" onclick="toggleDropdown('security')">Security</div>
+    <div class="nav-dropdown" id="security">
+      <a href="#">Permissions</a>
+      <a href="#">Audit Log</a>
+    </div>
+  </nav>
+
+  <main>
+    <button onclick="logInteraction()">Show Profile</button>
+    <h1 id="greeting" style="display:none">Hello, World!</h1>
+    <table id="profile" style="display:none">
+      <thead>
+        <tr><th>Field</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Name</td><td>Vijay Parpyani</td></tr>
+        <tr><td>Email</td><td>Vij_parpyani@yahoo.co.in</td></tr>
+        <tr><td>GitHub</td><td>WonderGenie</td></tr>
+        <tr><td>Repository</td><td>All-AI-Stuff</td></tr>
+      </tbody>
+    </table>
+    <div id="history"></div>
+  </main>
 
   <script>
+    function toggleDropdown(id) {
+      const el = document.getElementById(id);
+      el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
+    }
+
     function logInteraction() {
       document.getElementById('greeting').style.display = 'block';
       document.getElementById('profile').style.display = 'table';
