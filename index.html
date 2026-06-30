@@ -14,27 +14,19 @@
     font-family: Arial, sans-serif;
   }
 
-  /* Login screen */
-  #login-screen {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 0.8rem;
-  }
-  #login-screen input {
-    font-size: 1rem;
-    padding: 0.5rem;
-    width: 220px;
-  }
-  #login-error {
-    color: #c0392b;
-    min-height: 1.2rem;
-  }
-
   /* App shell */
-  #app { display: none; flex: 1; }
+  #app { display: flex; flex: 1; flex-direction: column; }
+  header {
+    background: #16162a;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  header .brand { font-weight: bold; font-size: 1.1rem; }
+  #app-body { display: flex; flex: 1; min-height: 0; }
   nav {
     width: 220px;
     background: #1a1a2e;
@@ -78,39 +70,33 @@
 </head>
 <body>
 
-<div id="login-screen">
-  <h1>Identity Management Console</h1>
-  <input id="login-user" placeholder="Username" value="admin">
-  <input id="login-pass" type="password" placeholder="Password">
-  <button onclick="login()">Log In</button>
-  <div id="login-error"></div>
-  <small>Demo credentials: admin / admin</small>
-</div>
-
 <div id="app">
-  <nav>
-    <div class="nav-item" onclick="toggleDropdown('nav-identity')">Identity</div>
-    <div class="nav-dropdown" id="nav-identity">
-      <a onclick="showView('providers')">Identity Providers</a>
-    </div>
-    <div class="nav-item" onclick="toggleDropdown('nav-user')">User</div>
-    <div class="nav-dropdown" id="nav-user">
-      <a onclick="showView('users')">Users</a>
-    </div>
-    <div class="nav-item" onclick="toggleDropdown('nav-security')">Security</div>
-    <div class="nav-dropdown" id="nav-security">
-      <a onclick="showView('roles')">Roles &amp; Permissions</a>
-      <a onclick="showView('audit')">Audit Log</a>
-    </div>
-    <div id="logout" onclick="logout()">Log Out</div>
-  </nav>
+  <header>
+    <span class="brand">Identity Management Console</span>
+    <span id="header-user"></span>
+  </header>
+  <div id="app-body">
+    <nav>
+      <div class="nav-item" onclick="toggleDropdown('nav-identity')">Identity</div>
+      <div class="nav-dropdown" id="nav-identity">
+        <a onclick="showView('providers')">Identity Providers</a>
+      </div>
+      <div class="nav-item" onclick="toggleDropdown('nav-user')">User</div>
+      <div class="nav-dropdown" id="nav-user">
+        <a onclick="showView('users')">Users</a>
+      </div>
+      <div class="nav-item" onclick="toggleDropdown('nav-security')">Security</div>
+      <div class="nav-dropdown" id="nav-security">
+        <a onclick="showView('roles')">Roles &amp; Permissions</a>
+        <a onclick="showView('audit')">Audit Log</a>
+      </div>
+    </nav>
 
-  <main id="main"></main>
+    <main id="main"></main>
+  </div>
 </div>
 
 <script>
-const SESSION_KEY = 'idm_session';
-
 function seed(key, value) {
   if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify(value));
 }
@@ -138,36 +124,9 @@ function load(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
 function save(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
 
 function logAudit(action) {
-  const session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
   const entries = load('idm_audit');
-  entries.unshift({ time: new Date().toLocaleString(), actor: session ? session.user : 'unknown', action });
+  entries.unshift({ time: new Date().toLocaleString(), actor: 'admin', action });
   save('idm_audit', entries);
-}
-
-function login() {
-  const user = document.getElementById('login-user').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  if (user === 'admin' && pass === 'admin') {
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ user }));
-    document.getElementById('login-error').textContent = '';
-    enterApp();
-  } else {
-    document.getElementById('login-error').textContent = 'Invalid username or password.';
-  }
-}
-
-function logout() {
-  logAudit('Logged out');
-  localStorage.removeItem(SESSION_KEY);
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-}
-
-function enterApp() {
-  logAudit('Logged in');
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  showView('users');
 }
 
 function toggleDropdown(id) {
@@ -255,11 +214,8 @@ function renderAudit() {
     </table>`;
 }
 
-if (localStorage.getItem(SESSION_KEY)) {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  showView('users');
-}
+document.getElementById('header-user').textContent = 'admin';
+showView('users');
 </script>
 </body>
 </html>
